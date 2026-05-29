@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EconLens — Business news through economics & game theory</title>
+  <meta name="description" content="Cut through social media noise. Understand Indian business news through economics, game theory, and geopolitics." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <script>window.ECONLENS_API = "http://localhost:8000"; // ← change to your Railway URL when live</script>
+</head>
+<body>
+
+  <!-- ── Nav ── -->
+  <nav class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">Econ<span>Lens</span></a>
+      <div class="nav__links">
+        <a href="index.html" class="active">Today</a>
+        <a href="pages/analyser.html">Analyser</a>
+        <a href="pages/about.html">About</a>
+        <a href="#newsletter" class="nav__cta">Subscribe</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero__inner">
+        <div class="hero__text">
+          <div class="hero__eyebrow fade-up">
+            <span class="hero__date" id="today-date"></span>
+            <span class="hero__dot">·</span>
+            <span>Daily Edition</span>
+          </div>
+          <h1 class="hero__title display fade-up fade-up-1">
+            Business news<br />
+            <em>decoded.</em>
+          </h1>
+          <p class="hero__sub fade-up fade-up-2">
+            Everyone tells you <strong>what</strong> happened.<br />
+            EconLens tells you <strong>why it was inevitable.</strong>
+          </p>
+          <div class="hero__actions fade-up fade-up-3">
+            <a href="pages/analyser.html" class="btn btn--primary btn--lg">Analyse a story</a>
+            <a href="#feed" class="btn btn--outline btn--lg">Today's feed ↓</a>
+          </div>
+        </div>
+        <div class="hero__framework fade-up fade-up-4">
+          <div class="framework-card">
+            <div class="framework-card__label">Our framework</div>
+            <div class="framework-card__layers">
+              <div class="framework-layer framework-layer--geo">
+                <span class="framework-layer__icon">🌐</span>
+                <div>
+                  <div class="framework-layer__name">Geopolitical Umbrella</div>
+                  <div class="framework-layer__desc">Trade wars · India-China-US · Sanctions · Forex</div>
+                </div>
+              </div>
+              <div class="framework-layer__arrow">↓ applied through</div>
+              <div class="framework-lenses">
+                <span class="framework-lens">Prisoner's Dilemma</span>
+                <span class="framework-lens">Nash Equilibrium</span>
+                <span class="framework-lens">Market Concentration</span>
+                <span class="framework-lens">Principal-Agent</span>
+                <span class="framework-lens">Modern Econ Theory</span>
+                <span class="framework-lens">Market Types</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Ticker ── -->
+  <div class="ticker">
+    <div class="ticker__inner">
+      <span class="ticker__label">LENSES</span>
+      <div class="ticker__track">
+        <span>Prisoner's Dilemma</span><span class="ticker__sep">·</span>
+        <span>Nash Equilibrium</span><span class="ticker__sep">·</span>
+        <span>Market Concentration</span><span class="ticker__sep">·</span>
+        <span>Principal-Agent</span><span class="ticker__sep">·</span>
+        <span>Modern Econ Theory</span><span class="ticker__sep">·</span>
+        <span>Market Types</span><span class="ticker__sep">·</span>
+        <span>Geopolitical Umbrella</span><span class="ticker__sep">·</span>
+        <span>Prisoner's Dilemma</span><span class="ticker__sep">·</span>
+        <span>Nash Equilibrium</span><span class="ticker__sep">·</span>
+        <span>Market Concentration</span><span class="ticker__sep">·</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Today's Feed ── -->
+  <section class="feed-section" id="feed">
+    <div class="container">
+      <div class="feed-header">
+        <h2 class="feed-header__title serif">Today's Analysis</h2>
+        <p class="feed-header__sub">Stories decoded through economics & geopolitics</p>
+      </div>
+
+      <!-- Feed grid -->
+      <div class="feed-grid" id="feed-grid">
+        <!-- Populated by JS or static fallback below -->
+      </div>
+
+      <!-- Static fallback cards shown before API loads -->
+      <div class="feed-static" id="feed-static">
+        <div class="feed-placeholder">
+          <div class="feed-placeholder__inner">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <p>Loading today's stories…</p>
+          </div>
+        </div>
+        <!-- Example static cards — replace with real API data -->
+        <div class="feed-examples" id="feed-examples"></div>
+      </div>
+
+      <div class="feed-footer">
+        <a href="pages/analyser.html" class="btn btn--outline">
+          Analyse your own story →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── How it works ── -->
+  <section class="how-section">
+    <div class="container--narrow">
+      <h2 class="how-section__title serif">How EconLens works</h2>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-step__num">01</div>
+          <h3 class="how-step__title">Geopolitical context first</h3>
+          <p class="how-step__desc">Before any economic analysis, we establish the geopolitical backdrop — trade wars, India-China-US dynamics, sanctions, and forex pressure shaping the story.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-step__num">02</div>
+          <h3 class="how-step__title">Six economic lenses</h3>
+          <p class="how-step__desc">We apply up to six frameworks — Prisoner's Dilemma, Nash Equilibrium, Market Concentration, and more — to reveal the hidden logic of the story.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-step__num">03</div>
+          <h3 class="how-step__title">The Verdict</h3>
+          <p class="how-step__desc">Every analysis ends with one bold, shareable sentence that captures why this outcome was economically inevitable.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Newsletter ── -->
+  <section class="newsletter-section" id="newsletter">
+    <div class="container--narrow">
+      <div class="newsletter-card card">
+        <div class="newsletter-card__inner">
+          <div class="newsletter-card__badge badge badge--teal">Free · No ads · No spam</div>
+          <h2 class="newsletter-card__title serif">Get EconLens in your inbox</h2>
+          <p class="newsletter-card__desc">3–5 stories every weekday morning, decoded through economics and geopolitics. Free forever.</p>
+          <form class="newsletter-form" id="newsletter-form" onsubmit="handleSubscribe(event)">
+            <input
+              type="email"
+              class="newsletter-form__input"
+              placeholder="your@email.com"
+              required
+              id="email-input"
+            />
+            <button type="submit" class="btn btn--primary">Subscribe</button>
+          </form>
+          <p class="newsletter-form__note" id="subscribe-msg"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__logo">Econ<span>Lens</span></div>
+      <div class="footer__links">
+        <a href="pages/analyser.html">Analyser</a>
+        <a href="pages/about.html">About</a>
+        <a href="#newsletter">Newsletter</a>
+      </div>
+      <p class="footer__copy">© 2026 EconLens. Free forever.</p>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/newsfetcher.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>

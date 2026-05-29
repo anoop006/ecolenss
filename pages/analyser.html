@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analyser — EconLens</title>
+  <meta name="description" content="Paste any business news story and get an instant breakdown through economics, game theory, and geopolitics." />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/analyser.css" />
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav__inner">
+      <a href="../index.html" class="nav__logo">Econ<span>Lens</span></a>
+      <div class="nav__links">
+        <a href="../index.html">Today</a>
+        <a href="analyser.html" class="active">Analyser</a>
+        <a href="../index.html#newsletter" class="nav__cta">Subscribe</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="analyser-header">
+    <div class="container--narrow">
+      <h1 class="analyser-header__title display">Story Analyser</h1>
+      <p class="analyser-header__sub">Paste any business news story. Get an instant breakdown through economics, game theory, and geopolitics. Powered by Groq — free, fast, no limits for everyday use.</p>
+    </div>
+  </div>
+
+  <main class="analyser-main">
+    <div class="container--narrow">
+
+      <div class="input-panel card">
+        <div class="input-panel__inner">
+
+          <!-- Groq API key -->
+          <label class="input-label">
+            Groq API Key
+            <span class="input-label--opt">— free key at <a href="https://console.groq.com" target="_blank" style="color:var(--teal)">console.groq.com</a> · no credit card needed</span>
+          </label>
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <input type="password" id="groq-key" class="api-input" placeholder="gsk_..." style="flex:1" />
+            <button type="button" class="btn btn--outline" onclick="saveKey()" style="white-space:nowrap;font-size:13px">Save key</button>
+          </div>
+          <p id="key-status" style="font-size:12px;color:var(--teal);min-height:18px;margin-bottom:16px"></p>
+
+          <!-- Model selector -->
+          <label class="input-label">Model <span class="input-label--opt">(70B = better quality · 8B = faster + more free requests)</span></label>
+          <select id="model-select" class="api-input" style="margin-bottom:20px;cursor:pointer">
+            <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile — best quality (30 req/min free)</option>
+            <option value="llama-3.1-8b-instant" selected>llama-3.1-8b-instant — fastest + most free requests (14,400/day)</option>
+          </select>
+
+          <!-- Story input -->
+          <label class="input-label">News story</label>
+          <textarea id="story-input" class="story-input" rows="6"
+            placeholder="Paste a headline, paragraph, or full article…&#10;&#10;e.g. Reliance Jio and Airtel are both considering raising mobile data prices…"></textarea>
+          <div class="input-meta">
+            <span class="char-count mono" id="char-count">0 characters</span>
+            <button type="button" class="btn btn--ghost btn--sm" id="load-example-btn">Load example</button>
+          </div>
+
+          <hr class="divider" />
+
+          <!-- Lens toggles -->
+          <label class="input-label">Economic lenses <span class="input-label--opt">(tap to toggle)</span></label>
+          <div class="lens-toggles">
+            <button type="button" class="lens-toggle active" data-key="prisoners_dilemma">Prisoner's Dilemma</button>
+            <button type="button" class="lens-toggle active" data-key="principal_agent">Principal-Agent</button>
+            <button type="button" class="lens-toggle active" data-key="nash_equilibrium">Nash Equilibrium</button>
+            <button type="button" class="lens-toggle active" data-key="market_concentration">Market Concentration</button>
+            <button type="button" class="lens-toggle active" data-key="modern_econ">Modern Econ Theory</button>
+            <button type="button" class="lens-toggle active" data-key="market_types">Market Types</button>
+          </div>
+          <p class="lens-note">
+            <span class="geo-always-badge">🌐 Geopolitical umbrella</span>
+            always applied automatically
+          </p>
+
+          <div class="analyser-actions">
+            <button type="button" class="btn btn--primary btn--lg" id="analyse-btn">Analyse story →</button>
+            <button type="button" class="btn btn--ghost" id="clear-btn">Clear</button>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="analyser-status" id="analyser-status"></div>
+      <div class="analyser-results" id="analyser-results"></div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__logo">Econ<span>Lens</span></div>
+      <p class="footer__copy">© 2026 EconLens. Free forever.</p>
+    </div>
+  </footer>
+
+  <script>
+  const LENSES = {
+    prisoners_dilemma:    { label:"Prisoner's Dilemma",    bg:'#EEEDFE', fg:'#3C3489' },
+    principal_agent:      { label:"Principal-Agent",        bg:'#E1F5EE', fg:'#085041' },
+    nash_equilibrium:     { label:"Nash Equilibrium",       bg:'#E6F1FB', fg:'#0C447C' },
+    market_concentration: { label:"Market Concentration",   bg:'#FDF3E3', fg:'#C4750A' },
+    modern_econ:          { label:"Modern Econ Theory",     bg:'#FDEAEA', fg:'#B93C3C' },
+    market_types:         { label:"Market Types",           bg:'#E4F4EC', fg:'#2A7A4B' },
+  };
+
+  const GEO_RISK = {
+    Low:    { bg:'#E4F4EC', fg:'#2A7A4B', lbl:'Low geo risk'    },
+    Medium: { bg:'#FDF3E3', fg:'#C4750A', lbl:'Medium geo risk' },
+    High:   { bg:'#FDEAEA', fg:'#B93C3C', lbl:'High geo risk'   },
+  };
+
+  const SYSTEM_PROMPT = `You are an expert economics, game theory, and geopolitical analyst for EconLens — an Indian business news platform.
+Cut through social media noise by explaining business news through rigorous economic, strategic, and geopolitical frameworks.
+
+GEOPOLITICS IS THE UMBRELLA. Consider these 4 angles before applying economic lenses:
+- Trade wars & tariffs
+- India-China-US triangle
+- Sanctions & supply chains
+- Currency & forex pressure
+
+Return ONLY a valid JSON object — no markdown, no backticks, no explanation whatsoever:
+{
+  "headline": "One sharp sentence capturing the core economic tension",
+  "geo_umbrella": {
+    "context": "2-3 sentences on the geopolitical backdrop. Name countries, policies, or pressures at play.",
+    "risk_level": "Low",
+    "risk_reason": "One sentence explaining the risk rating.",
+    "angles": ["only relevant angles from the 4 listed"]
+  },
+  "lenses": [
+    {"key": "exact_lens_key", "insight": "2-3 sharp sentences. Name the mechanism clearly. Show how geopolitics intensifies this lens where relevant."}
+  ],
+  "verdict": "One bold shareable sentence — why this outcome was economically inevitable."
+}`;
+
+  const EXAMPLE = `India is accelerating its push to reduce dependence on Chinese electronics components, as US tariffs on China force global supply chains to restructure. Tata Electronics and Dixon Technologies are racing to capture Apple and Samsung manufacturing contracts, but both need Chinese machinery and engineers to scale — creating a paradox at the heart of the China+1 strategy.`;
+
+  // ── Key persistence ──────────────────────────────────────────────
+  let groqKey = localStorage.getItem('econlens_groq_key') || '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';
+  window.addEventListener('DOMContentLoaded', () => {
+    if (groqKey) {
+      document.getElementById('groq-key').value = groqKey;
+      document.getElementById('key-status').textContent = '✓ Key loaded from last session';
+    }
+  });
+
+  function saveKey() {
+    const k = document.getElementById('groq-key').value.trim();
+    if (!k) { showKeyStatus('Enter a key first.', true); return; }
+    groqKey = k;
+    localStorage.setItem('econlens_groq_key', k);
+    showKeyStatus('✓ Key saved to browser');
+  }
+
+  function showKeyStatus(msg, err=false) {
+    const el = document.getElementById('key-status');
+    el.textContent = msg;
+    el.style.color = err ? 'var(--red)' : 'var(--teal)';
+  }
+
+  // ── UI ───────────────────────────────────────────────────────────
+  const storyInput = document.getElementById('story-input');
+  const analyseBtn = document.getElementById('analyse-btn');
+  const statusEl   = document.getElementById('analyser-status');
+  const resultsEl  = document.getElementById('analyser-results');
+
+  storyInput.addEventListener('input', () => {
+    document.getElementById('char-count').textContent = `${storyInput.value.length} characters`;
+  });
+  document.getElementById('load-example-btn').addEventListener('click', () => {
+    storyInput.value = EXAMPLE;
+    storyInput.dispatchEvent(new Event('input'));
+  });
+  document.getElementById('clear-btn').addEventListener('click', () => {
+    storyInput.value = '';
+    storyInput.dispatchEvent(new Event('input'));
+    resultsEl.innerHTML = '';
+    setStatus('');
+  });
+  document.querySelectorAll('.lens-toggle').forEach(b =>
+    b.addEventListener('click', () => b.classList.toggle('active'))
+  );
+
+  function getActiveLenses() {
+    return [...document.querySelectorAll('.lens-toggle.active')].map(b => b.dataset.key);
+  }
+  function setStatus(msg, err=false) {
+    statusEl.className = 'analyser-status' + (err ? ' analyser-status--error' : '');
+    statusEl.innerHTML = msg;
+  }
+  function setLoading(on) {
+    analyseBtn.disabled = on;
+    analyseBtn.textContent = on ? 'Analysing…' : 'Analyse story →';
+    if (on) setStatus(`<div class="dots"><span></span><span></span><span></span></div> Applying lenses…`);
+  }
+
+  // ── Backend API call ─────────────────────────────────────────────
+  async function callGroq(story, activeLenses) {
+    const base = window.ECONLENS_API || 'http://localhost:8000';
+    const res  = await fetch(`${base}/analyse`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ story, active_lenses: activeLenses })
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      if (res.status === 503) throw new Error(e.detail || 'Backend unavailable — make sure your API is running');
+      throw new Error(e.detail || `Error ${res.status}`);
+    }
+    return res.json();
+  }
+
+  // ── Analyse ──────────────────────────────────────────────────────
+  analyseBtn.addEventListener('click', async () => {
+    const story = storyInput.value.trim();
+    if (!story) { setStatus('Please paste a news story first.', true); return; }
+    const active = getActiveLenses();
+    if (!active.length) { setStatus('Select at least one lens.', true); return; }
+
+    setLoading(true);
+    try {
+      const result = await callGroq(story, active);
+      setLoading(false);
+      setStatus('<span style="color:var(--teal)">✓ Analysis complete</span>');
+      renderResults(result);
+    } catch(err) {
+      setLoading(false);
+      setStatus(`Error: ${err.message}`, true);
+    }
+  });
+
+  storyInput.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') analyseBtn.click();
+  });
+
+  // ── Render ───────────────────────────────────────────────────────
+  function renderResults(r) {
+    const geo  = r.geo_umbrella || {};
+    const rc   = GEO_RISK[geo.risk_level] || GEO_RISK.Medium;
+    const pills = (geo.angles || []).map(a => `<span class="geo-pill">+ ${a}</span>`).join('');
+
+    const lensCards = (r.lenses || []).map(item => {
+      const l = LENSES[item.key]; if (!l) return '';
+      return `<div class="lens-card fade-up">
+        <span style="display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:8px;background:${l.bg};color:${l.fg}">${l.label}</span>
+        <p class="lens-card__insight">${item.insight}</p>
+      </div>`;
+    }).join('');
+
+    resultsEl.innerHTML = `
+      <div class="analysis fade-up">
+        <div class="analysis__headline">${r.headline || ''}</div>
+        <div class="geo-block" style="border-color:${rc.bg}">
+          <div class="geo-block__header">
+            <span class="geo-block__title">Geopolitical Umbrella</span>
+            <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:${rc.bg};color:${rc.fg}">${rc.lbl}</span>
+          </div>
+          <p class="geo-block__context">${geo.context || ''}
+            <em class="geo-block__reason"> — ${geo.risk_reason || ''}</em></p>
+          <div class="geo-block__pills">${pills}</div>
+        </div>
+        <div class="analysis__lenses">${lensCards}</div>
+        <div class="verdict-block">
+          <div>
+            <div class="verdict-block__label">The Verdict</div>
+            <div class="verdict-block__text" id="verdict-text">${r.verdict || r.headline || ''}</div>
+          </div>
+          <button type="button" class="verdict-copy" onclick="copyVerdict()">Copy</button>
+        </div>
+      </div>`;
+  }
+
+  function copyVerdict() {
+    const text = document.getElementById('verdict-text')?.textContent || '';
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.verdict-copy');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+  }
+  </script>
+</body>
+</html>
