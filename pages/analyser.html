@@ -80,7 +80,7 @@
 
   <script>
   // ── Config — paste your Groq key here ───────────────────────────
-  const GROQ_KEY = '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';
+ const GROQ_KEY = localStorage.getItem('econlens_groq_key') || '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';;
 
   const LENSES = {
     prisoners_dilemma:    { label:"Prisoner's Dilemma",    bg:'#EEEDFE', fg:'#3C3489' },
