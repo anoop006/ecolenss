@@ -42,7 +42,6 @@ async function loadFeed() {
     attachFeedListeners();
     const banner = document.createElement('div');
     banner.className = 'demo-banner';
-    banner.innerHTML = `<span>📡</span> Showing demo stories — make sure your backend is running`;
     grid.parentElement.insertBefore(banner, grid);
   }
 }
