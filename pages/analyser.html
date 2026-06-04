@@ -142,7 +142,7 @@ Return ONLY valid JSON — no markdown, no backticks:
   // ── Groq API call ────────────────────────────────────────────────
   async function callGroq(story, activeLenses) {
     const lensLines = activeLenses.map(k => `- ${k}: ${LENSES[k]?.label}`).join('\n');
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await fetch('solitary-block-a736.anoopnadan006.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
       body: JSON.stringify({
